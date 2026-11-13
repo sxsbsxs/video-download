@@ -28,6 +28,14 @@
     ├── public/index.html
     └── .github/workflows/ci.yml
 
+## Android Termux 手机服务器模式
+
+不租 VPS，也可以让 Android 手机运行 VideoDL。该模式在手机本地使用 Python、yt-dlp 和 FFmpeg 解析、下载与合并视频，再通过 Cloudflare Tunnel 临时提供公网访问。
+
+完整安装、启动、访问密钥、开机启动和排错步骤见 [Termux 部署指南](termux/README.md)。
+
+注意：Cloudflare Quick Tunnel 会生成临时随机域名，隧道停止后地址失效；手机必须保持联网和后台进程运行。它适合个人测试和临时分享，不是具有在线率保证的生产托管服务。
+
 ## 本地运行（Docker，推荐）
 
 需要安装 Docker Engine 或 Docker Desktop。
