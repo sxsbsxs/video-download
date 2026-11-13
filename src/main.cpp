@@ -13,12 +13,14 @@
 #include <cerrno>
 #include <chrono>
 #include <cctype>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <deque>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <mutex>
 #include <regex>
 #include <string>
@@ -259,6 +261,7 @@ WorkerResult runExtractor(const std::string& python, const std::string& script,
     }
 
     if (pid == 0) {
+        setsid();
         close(pipefd[0]);
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[1]);
@@ -289,6 +292,7 @@ WorkerResult runExtractor(const std::string& python, const std::string& script,
     while (!eof || !child_done) {
         if (Clock::now() > deadline) {
             result.timed_out = true;
+            kill(-pid, SIGKILL);
             kill(pid, SIGKILL);
             waitpid(pid, &status, 0);
             child_done = true;
