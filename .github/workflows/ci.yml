@@ -18,6 +18,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check Termux Python syntax
+        run: python -m compileall -q termux_server
+
       - name: Build Docker image
         run: docker build --pull -t videodl-next:ci .
 
