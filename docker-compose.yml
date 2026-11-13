@@ -1,0 +1,12 @@
+services:
+  videodl:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: videodl-next:local
+    container_name: videodl-next
+    ports:
+      - "10000:10000"
+    environment:
+      PORT: "10000"
+    restart: unless-stopped

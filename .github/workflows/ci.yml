@@ -1,0 +1,44 @@
+name: Build and smoke test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build --pull -t videodl-next:ci .
+
+      - name: Start container
+        run: docker run -d --name videodl-next-ci -p 10000:10000 videodl-next:ci
+
+      - name: Wait for health endpoint
+        run: |
+          for attempt in $(seq 1 40); do
+            if curl --fail --silent http://127.0.0.1:10000/api/health; then
+              echo
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs videodl-next-ci
+          exit 1
+
+      - name: Check frontend
+        run: curl --fail --silent http://127.0.0.1:10000/ | grep -q "VideoDL Next"
+
+      - name: Cleanup
+        if: always()
+        run: docker rm -f videodl-next-ci || true
