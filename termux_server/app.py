@@ -51,7 +51,7 @@ def clean(info):
         fid=str(f.get("format_id",""))
         if not fid or fid in seen: continue
         seen.add(fid); h=f.get("height"); fps=f.get("fps")
-        fs.append({"format_id":fid,"height":h,"fps":fps,"ext":f.get("ext") or "mp4",
+        fs.append({"format_id":(fid if f.get("acodec") not in (None,"none") else fid+"+bestaudio/best"),"height":h,"fps":fps,"ext":f.get("ext") or "mp4",
           "filesize":f.get("filesize") or f.get("filesize_approx"),
           "has_audio":f.get("acodec") not in (None,"none"),
           "label":(str(h)+"p" if h else "视频流")+((" · "+str(round(fps))+" FPS") if fps else "")})
@@ -115,7 +115,7 @@ def create():
     body=request.get_json(silent=True) or {}
     try:
         url=valid_url(body.get("url","")); fid=str(body.get("format_id","best"))
-        if not re.fullmatch(r"[A-Za-z0-9._+-]{1,80}",fid): raise ValueError("格式编号无效")
+        if not re.fullmatch(r"[A-Za-z0-9._+/-]{1,100}",fid): raise ValueError("格式编号无效")
     except ValueError as ex: return jsonify(ok=False,error=str(ex)),400
     with LOCK:
         if ACTIVE>=LIMIT: return jsonify(ok=False,error="当前下载任务已满，请稍后再试"),429
